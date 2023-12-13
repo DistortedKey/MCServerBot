@@ -131,7 +131,7 @@ module.exports = {
 
 
             if (whitelistUsername == "list") {
-                const list = await sendRconCommand(`whitelist list`);
+                const list = await sendRconCommand(`whitelist list`, settings.rconPassword, settings.rconPort);
                 return interaction.editReply({ embeds: [goodEmbed(list)], ephemeral: true });
 
             } else if (whitelistUsername == "remove") {
