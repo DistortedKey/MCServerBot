@@ -1,3 +1,6 @@
+// command for discord server to interact with the minecraft server
+
+// imports
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { exec } = require('child_process');
 const { promisify } = require('util');
@@ -9,7 +12,7 @@ const serverStatus = require("../server/ServerStatus.js");
 const serverStart = require("../server/ServerStart.js");
 
 
-
+// function to send command to the server
 async function sendRconCommand(command, rconPassword, rconPort) {
     const mcrconPath = path.join(__dirname, '../', 'mcrcon');
     const mcrconCommand = `${mcrconPath} -p ${rconPassword} -P ${rconPort} "${command}"`;
@@ -74,14 +77,17 @@ module.exports = {
                         .setRequired(false))),
     async execute(interaction) {
         await interaction.reply({ embeds: [processEmbed("Processing request")], ephemeral: true });
+
+        // grab data
         const subcommand = interaction.options.getSubcommand();
 
         const runningStatus = await serverStatus();
 
         const guild = interaction.guild;
-        let configData = readJSON("config.json");
+        let configData = await readJSON("config.json");
         let settings = configData[guild.id];
 
+        // button for server start
         const row = new ActionRowBuilder();
         row.addComponents(
             new ButtonBuilder()
@@ -90,12 +96,13 @@ module.exports = {
                 .setStyle(ButtonStyle.Success)
         )
 
+        // if command is to start server, check if server is already running, if not start it
         if (subcommand == "start") {
             if (runningStatus == true) {
                 return interaction.editReply({ embeds: [errorEmbed("Server is already running.")], ephemeral: true });
             }
             try {
-                const response = await serverStart.execute("");
+                const response = await serverStart.execute(settings.dedicatedRamGB);
                 if (response == true) {
                     return interaction.editReply({ embeds: [goodEmbed("Starting server...")], ephemeral: true });
                 }
@@ -103,6 +110,8 @@ module.exports = {
             } catch (error) {
                 console.log(error);
             }
+
+            // if command is stop, check if user has permissions, if so then stop it
         } else if (subcommand == "stop") {
             if (settings.permissions[interaction.member.user.id] != 'server_admin' && settings.permissions[interaction.member.user.id] != 'server_owner') {
                 return interaction.editReply({ embeds: [errorEmbed(`You must have MC server admin`)], ephemeral: true });
@@ -120,20 +129,22 @@ module.exports = {
             }
             interaction.editReply({ embeds: [errorEmbed('Command Failed to send to server.')], ephemeral: true });
 
-
+        // if command is whitelist, check if user has already whitelisted, if not, then check argument
         } else if (subcommand == "whitelist") {
             let whitelistUsername = interaction.options.getString('username');
 
+            // see if server is running
             const running = await serverStatus();
             if (running == false) {
                 return interaction.editReply({ embeds: [errorEmbed("The server is down. \nClick the button to start it, then wait a minute before trying again")], components: [row], ephemeral: true });
             }
 
-
+            // if argument is list, get the list of whitelisted players from the server
             if (whitelistUsername == "list") {
                 const list = await sendRconCommand(`whitelist list`, settings.rconPassword, settings.rconPort);
                 return interaction.editReply({ embeds: [goodEmbed(list)], ephemeral: true });
 
+            // if the command is remove, remove the username they used to whitelist, also remove the user from the whitelist json file
             } else if (whitelistUsername == "remove") {
                 let whitelistList = readJSON("whitelisted.json");
                 const username = whitelistList[guild.id][`${interaction.member.user.id}`];
@@ -154,6 +165,7 @@ module.exports = {
                 writeJSON("whitelisted.json", whitelistList);
                 return interaction.editReply({ embeds: [goodEmbed(success)], ephemeral: true });
 
+            // if argument is not either of these, then take it as a username and whitelist it.
             } else {
                 let whitelistList = readJSON('./whitelisted.json');
 
@@ -180,6 +192,8 @@ module.exports = {
 
             }
 
+
+        // if command is "command" check for permissions, then send command to server
         } else if (subcommand == "command") {
             if (settings.permissions[interaction.member.user.id] != 'server_admin' && settings.permissions[interaction.member.user.id] != 'server_owner') {
                 return interaction.editReply({ embeds: [errorEmbed(`You must have MC server admin to use this command`)], ephemeral: true });
@@ -197,6 +211,9 @@ module.exports = {
                 return interaction.editReply({ embeds: [errorEmbed(`Unable to execute a command at this time`)], ephemeral: true });
             }
             return interaction.editReply({ embeds: [goodEmbed(response)], ephemeral: true });
+
+
+        // if command is admin, check for permissions, then op the user if they have whitelisted
         } else if (subcommand == 'admin') {
             let option = interaction.options.getString('action');
             const whitelistList = readJSON('./whitelisted.json');
@@ -205,7 +222,7 @@ module.exports = {
             if (settings.permissions[interaction.member.user.id] != 'server_admin' && settings.permissions[interaction.member.user.id] != 'server_owner') {
                 return interaction.editReply({ embeds: [errorEmbed(`You must have MC server admin to use this command`)], ephemeral: true });
             }
-
+            // if it is to list, get list
             if (option == '_op') {
                 const permissions = settings.permissions;
                 let ops = "Discord Username: Whitelisted Username\n";
@@ -231,6 +248,7 @@ module.exports = {
                 return interaction.editReply({ embeds: [errorEmbed("The server is down. \nClick the button to start it, then wait a minute before trying again")], components: [row], ephemeral: true });
             }            
 
+            // if it is to add an op
             if (option == '+op') {
                 if (settings.permissions[user.id] == 'server_admin' || settings.permissions[user.id] == 'server_owner') {
                     return interaction.editReply({ embeds: [errorEmbed(`User is already an admin`)], ephemeral: true });
@@ -252,6 +270,7 @@ module.exports = {
                 writeJSON('./config.json', configData);
                 return interaction.editReply({ embeds: [goodEmbed(response)], ephemeral: true });
 
+            // if it is to remove an op
             } else if (option == '-op') {
                 if (settings.permissions[user.id] != 'server_admin') {
                     return interaction.editReply({ embeds: [errorEmbed(`User is not an admin`)], ephemeral: true });

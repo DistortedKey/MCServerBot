@@ -1,5 +1,8 @@
+// returns wether or not the minecraft server is up.
+
 const util = require('minecraft-server-util');
 
+// function to get server response
 async function checkServerStatus(serverIp, serverPort) {
     try {
         const response = await util.status(serverIp, serverPort);

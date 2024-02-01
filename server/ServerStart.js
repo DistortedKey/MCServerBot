@@ -1,10 +1,17 @@
+// starts the minecraft server
+
 const path = require('node:path');
 const { exec } = require('child_process');
 
 module.exports = {
     data: "serverStart",
-    async execute(statusMessage) {
-        const command = `java -Xmx1024M -Xms1024M -jar ${path.join(__dirname, "server.jar")}`;
+    async execute(sizeInGigabytes) {
+
+        // convert GB to MB for command
+        const heapSize = sizeInGigabytes * 1024;
+
+        // create command to start server, with heap size from config
+        const command = `java -Xmx${heapSize}M -Xms${heapSize}M -jar ${path.join(__dirname, "server.jar")}`;
 
         const options = { cwd: `${__dirname}`};
         //start server

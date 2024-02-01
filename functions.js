@@ -1,5 +1,10 @@
+// functions to use across files
+
+// dependencies
 const { EmbedBuilder, REST, Routes } = require('discord.js');
 const fs = require('node:fs');
+
+// error embed message
 function errorEmbed(errorMessage) {
     return new EmbedBuilder()
         .setColor(0xa10202)
@@ -9,6 +14,7 @@ function errorEmbed(errorMessage) {
         .setFooter({ text: 'MC Server Bot', iconURL: 'https://cdn.discordapp.com/avatars/558440155397095455/d85c9d818e61126c089152e688adce7c.webp' });
 }
 
+// success embed message
 function goodEmbed(message) {
     return new EmbedBuilder()
         .setColor(0x14a102)
@@ -18,6 +24,7 @@ function goodEmbed(message) {
         .setFooter({ text: 'MC Server Bot', iconURL: 'https://cdn.discordapp.com/avatars/558440155397095455/d85c9d818e61126c089152e688adce7c.webp' });
 }
 
+// processing embed message
 function processEmbed(message, title = 'Processing...', color = 0xc7ac01) {
     return new EmbedBuilder()
         .setColor(color)
@@ -27,6 +34,7 @@ function processEmbed(message, title = 'Processing...', color = 0xc7ac01) {
         .setFooter({ text: 'MC Server Bot', iconURL: 'https://cdn.discordapp.com/avatars/558440155397095455/d85c9d818e61126c089152e688adce7c.webp' });
 }
 
+// takes a .json file and reads it into an object
 function readJSON(fileName) {
     try {
         const data = fs.readFileSync(`${fileName}`, 'utf8');
@@ -54,11 +62,14 @@ function writeJSON(fileName, data) {
 // Function to check if a global command with a certain name is already registered
 async function isCommandRegistered(options) {
     const rest = new REST({ version: '10' }).setToken(options.token);
-    if(options.guildTest) {
+    // if a guild is specified, search in that guild
+    if(options.guildTest) { 
         const commands = await rest.get(
             Routes.applicationGuildCommands(options.clientId, options.guildId),
         );
         return commands.some(command => command.name === options.commandName);
+        
+        // otherwise, check global commands
     } else {
         const commands = await rest.get(
             Routes.applicationCommands(options.clientId),
@@ -67,6 +78,7 @@ async function isCommandRegistered(options) {
     }
 }
 
+// export functions
 module.exports = {
     errorEmbed,
     goodEmbed,
