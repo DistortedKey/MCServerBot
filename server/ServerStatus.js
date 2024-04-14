@@ -26,4 +26,4 @@ async function serverStatus(IP = 'localhost', port = 25565) {
     }
 }
 
-module.exports = serverStatus;
+module.exports = { serverStatus };

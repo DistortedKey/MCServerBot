@@ -1,15 +1,16 @@
 {
   "name": "mc-server-bot",
-  "version": "1.2.0",
-  "main": "main.js",
+  "version": "2.0.0",
+  "description": "Discord bot to interact with and manage Minecraft Server",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Key",
+  "author": "DR4CON",
   "license": "ISC",
   "dependencies": {
     "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5",
     "minecraft-server-util": "^5.4.4"
-  },
-  "description": ""
+  }
 }

@@ -1,4 +1,0 @@
-# ignore all .txt files
-node_modules/
-libraries/
-package-lock.json

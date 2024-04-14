@@ -1,0 +1,23 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { execute } = require('../../events/ready');
+
+module.exports = {
+    data: new SlashCommandBuilder()
+    .setName("test")
+    .setDescription("test command"),
+    async execute(interaction, client) {
+        await interaction.reply("Bot worky")
+    }
+}
+
+
+
+const row = new ActionRowBuilder();
+        row.addComponents(
+            new ButtonBuilder()
+                .setCustomId("server-start")
+                .setLabel("Start Server")
+                .setStyle(ButtonStyle.Success)
+        )
+
+        interaction.editReply({components:[row]});

@@ -1,0 +1,18 @@
+const { data } = require("../Server Commands/test");
+
+module.exports = {
+    data: {
+        name: "global_test",
+        description: "global test command",
+        "integration_types": [ 1 ],
+        "contexts": [ 0, 1, 2 ]
+    },
+    async execute(interaction, client) {
+        try {
+            interaction.reply({content: "test", ephemeral: false});
+        } catch {
+            interaction.reply({content: "test", ephemeral: true});
+        }
+        
+    }
+}
