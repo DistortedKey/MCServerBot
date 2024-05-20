@@ -32,7 +32,7 @@ module.exports = {
                 try {
                     await reply("Processing...", null, " ", true, '#d4a508');
                     const config = await readJSON('config.json');
-                    await serverStart(config.dedicatedRamGB, interaction);
+                    await serverStart(config.dedicatedramgb, interaction);
                 } catch { }
             } 
         } else if (interaction.type == InteractionType.ApplicationCommandAutocomplete) {

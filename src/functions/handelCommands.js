@@ -1,6 +1,6 @@
 const { REST } = require("@discordjs/rest");
 const { Routes } = require('discord-api-types/v9');
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, ContextMenuCommandBuilder } = require('discord.js');
 const fs = require('fs');
 
 require('dotenv').config();
@@ -16,7 +16,7 @@ module.exports = (client) => {
             for (const file of commandFiles) {
                 const command = require(`../commands/${folder}/${file}`);
                 client.commands.set(command.data.name, command);
-                if (command.data instanceof SlashCommandBuilder) {
+                if (command.data instanceof SlashCommandBuilder || command.data instanceof ContextMenuCommandBuilder) {
                     client.commandArray.push(command.data.toJSON());
                 } else {
                     client.commandArray.push(command.data);

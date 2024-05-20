@@ -1,6 +1,6 @@
-const { Client, GatewayIntentBits, Collection } = require(`discord.js`);
+const { Client, GatewayIntentBits, Collection, Partials } = require(`discord.js`);
 const fs = require('fs');
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] }); 
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.DirectMessages], partials: [Partials.Channel, Partials.Message] }); 
 
 
 client.commands = new Collection();

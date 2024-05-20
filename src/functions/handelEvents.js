@@ -3,9 +3,13 @@ module.exports = (client) => {
         for (const file of eventFiles) {
             const event = require(`../events/${file}`);
             if (event.once) {
-                client.once(event.name, (...args) => event.execute(...args, client));
+                client.once(event.name, (...args) => {
+                    // console.log(`Received ${event.name} event:`, args);
+                    event.execute(...args, client);
+                })
             } else {
                 client.on(event.name, (...args) => {
+                    // console.log(`Received ${event.name} event:`, args);
                     event.execute(...args, client)
                 });
             }
